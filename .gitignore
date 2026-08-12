@@ -36,3 +36,4 @@ server/.env
 server/node_modules/
 server/dist/
 server/test-db.js
+push-to-github.bat

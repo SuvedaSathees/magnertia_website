@@ -100,18 +100,18 @@ function ServicesPage() {
           />
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {whatWeDoServices.map((s, i) => (
-            <Reveal key={s.title} delay={i * 0.07}>
-              <article className="surface-card hover-lift group h-full p-8 rounded-[32px] border border-slate-200/90 shadow-lg bg-white relative overflow-hidden">
-                <div className="absolute -right-16 -top-16 size-36 rounded-full bg-accent/8 blur-2xl group-hover:bg-accent/15 transition-colors" />
-                <div className="grid size-14 place-items-center rounded-2xl [background:var(--gradient-primary)] text-white shadow-md transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
-                  <s.icon className="size-6" />
-                </div>
-                <h3 className="mt-6 text-lg font-bold text-primary group-hover:text-accent transition-colors">{s.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-600 font-normal">{s.body}</p>
-              </article>
-            </Reveal>
-          ))}
+            {whatWeDoServices.map((s, i) => (
+              <Reveal key={s.title} delay={i * 0.07}>
+                <article className="surface-card hover-lift group h-full p-8 rounded-[32px] border border-slate-200/90 shadow-lg bg-white relative overflow-hidden">
+                  <div className="absolute -right-16 -top-16 size-36 rounded-full bg-accent/8 blur-2xl group-hover:bg-accent/15 transition-colors" />
+                  <div className="grid size-14 place-items-center rounded-2xl [background:var(--gradient-primary)] text-white shadow-md transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">
+                    <s.icon className="size-6" />
+                  </div>
+                  <h3 className="mt-6 text-lg font-bold text-primary group-hover:text-accent transition-colors">{s.title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-slate-600 font-normal">{s.body}</p>
+                </article>
+              </Reveal>
+            ))}
           </div>
         </div>
       </section>
@@ -227,4 +227,3 @@ function ServicesPage() {
   );
 }
 
- 

@@ -13,6 +13,7 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    base: process.env.NODE_ENV === "production" ? "/magnertia_website/" : "/",
     server: {
       proxy: {
         // Proxy all /api/* requests to the Express backend in development.

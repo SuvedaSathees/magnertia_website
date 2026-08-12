@@ -10,6 +10,7 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    basepath: process.env.NODE_ENV === "production" ? "/magnertia_website" : "/",
   });
 
   return router;
