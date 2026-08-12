@@ -1,4 +1,4 @@
-import { motion, useInView, useMotionValue, useSpring, animate } from "motion/react";
+import { motion, useInView, useMotionValue, useSpring, useTransform, animate } from "motion/react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
@@ -82,44 +82,47 @@ export function SectionHeading({
   description,
   align = "center",
   tone = "light",
+  className,
 }: {
   eyebrow?: string;
   title: ReactNode;
   description?: string;
   align?: "center" | "left";
   tone?: "light" | "dark";
+  className?: string;
 }) {
   return (
     <div
       className={cn(
-        "max-w-2xl",
+        "max-w-4xl lg:max-w-5xl",
         align === "center" ? "mx-auto text-center" : "text-left",
         tone === "dark" && "text-white",
+        className,
       )}
     >
       {eyebrow && (
         <Reveal>
-          <span
+          <div
             className={cn(
-              "inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[0.7rem] font-semibold tracking-[0.22em] uppercase",
-              tone === "dark"
-                ? "border border-white/20 bg-white/10 text-white/80"
-                : "border border-border bg-white text-accent",
+              "mb-2.5 inline-flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.18em]",
+              tone === "dark" ? "text-amber-300" : "text-accent",
             )}
           >
-            {eyebrow}
-          </span>
+            <span className={cn("h-0.5 w-6 rounded-full", tone === "dark" ? "bg-amber-300" : "bg-accent")} />
+            <span>{eyebrow}</span>
+          </div>
         </Reveal>
       )}
       <Reveal delay={0.08}>
-        <h2 className="mt-6 text-4xl leading-[1.05] sm:text-5xl">{title}</h2>
+        <h2 className="mt-1 text-3xl leading-[1.12] sm:text-4xl lg:text-[44px]">{title}</h2>
       </Reveal>
       {description && (
         <Reveal delay={0.16}>
           <p
             className={cn(
-              "mt-5 text-base leading-relaxed",
-              tone === "dark" ? "text-white/70" : "text-muted-foreground",
+              "mt-4 text-base leading-relaxed",
+              align === "center" ? "text-center mx-auto" : "text-left",
+              tone === "dark" ? "text-white/75" : "text-muted-foreground",
             )}
           >
             {description}
@@ -195,5 +198,68 @@ export function Particles({ count = 26, className }: { count?: number; className
         />
       ))}
     </div>
+  );
+}
+
+/* ---------------- 3D Tilt & Moving Card ---------------- */
+export function TiltCard({
+  children,
+  className,
+  intensity = 10,
+  floatAnimation = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  intensity?: number;
+  floatAnimation?: boolean;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 180, damping: 20 });
+  const mouseYSpring = useSpring(y, { stiffness: 180, damping: 20 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], [`${intensity}deg`, `-${intensity}deg`]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], [`-${intensity}deg`, `${intensity}deg`]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      animate={floatAnimation ? { y: [0, -8, 0] } : undefined}
+      transition={
+        floatAnimation
+          ? { duration: 5, repeat: Infinity, ease: "easeInOut" }
+          : undefined
+      }
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+      }}
+      className={cn("perspective-[1200px] transition-all duration-200", className)}
+    >
+      {children}
+    </motion.div>
   );
 }

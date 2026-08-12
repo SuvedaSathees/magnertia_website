@@ -1,7 +1,8 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion, useScroll, useMotionValueEvent } from "motion/react";
-import { Menu, X, LogIn } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, LogIn, LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { LogoMark, Wordmark } from "./LogoMark";
 import { BrandButton } from "./BrandButton";
@@ -10,26 +11,64 @@ import { NAV_LINKS } from "@/data/site";
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
   const { scrollY } = useScroll();
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+
+  const checkAuthStatus = () => {
+    if (typeof window !== "undefined") {
+      setIsAuth(sessionStorage.getItem("magnertia_admin_auth") === "true");
+    }
+  };
+
+  useEffect(() => {
+    checkAuthStatus();
+    const handleAuthEvent = () => checkAuthStatus();
+    window.addEventListener("admin_auth_change", handleAuthEvent);
+    window.addEventListener("storage", handleAuthEvent);
+    return () => {
+      window.removeEventListener("admin_auth_change", handleAuthEvent);
+      window.removeEventListener("storage", handleAuthEvent);
+    };
+  }, [path]);
 
   useMotionValueEvent(scrollY, "change", (v) => setScrolled(v > 24));
+
+  const handleAuthAction = () => {
+    const currentAuth = typeof window !== "undefined" && sessionStorage.getItem("magnertia_admin_auth") === "true";
+    if (currentAuth) {
+      sessionStorage.removeItem("magnertia_admin_auth");
+      setIsAuth(false);
+      window.dispatchEvent(new CustomEvent("admin_auth_change"));
+      toast.info("Logged out successfully.");
+      navigate({ to: "/login" });
+    } else {
+      navigate({ to: "/login" });
+    }
+  };
+
+  const darkHeroRoutes = ["/"];
+  const isDarkHeroRoute = darkHeroRoutes.some((r) => (r === "/" ? path === "/" : path.startsWith(r)));
+  const isDarkHero = !scrolled && isDarkHeroRoute;
 
   return (
     <header
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-500",
         scrolled
-          ? "border-b border-white/60 bg-white/75 py-3 backdrop-blur-xl shadow-[var(--shadow-soft)]"
-          : "border-b border-transparent bg-transparent py-5",
+          ? "border-b border-slate-200/80 bg-white/85 py-3 backdrop-blur-xl shadow-md text-primary"
+          : isDarkHero
+            ? "border-b border-white/15 bg-slate-950/40 py-4 backdrop-blur-xl shadow-2xl text-white"
+            : "border-b border-transparent bg-transparent py-5 text-primary",
       )}
     >
       <nav className="shell flex items-center justify-between gap-6">
-        <Link to="/" className="flex items-center gap-3 text-primary" aria-label="Magnertia home">
-          <motion.span whileHover={{ rotate: -8, scale: 1.06 }} transition={{ type: "spring" }}>
-            <LogoMark className="h-8 w-8" />
+        <Link to="/" className="flex items-center gap-3" aria-label="Magnertia home">
+          <motion.span whileHover={{ rotate: -6, scale: 1.08 }} transition={{ type: "spring" }}>
+            <LogoMark className="h-11 w-11 sm:h-12 sm:w-12" />
           </motion.span>
-          <Wordmark className="hidden sm:block" />
+          <Wordmark className={cn("hidden sm:block transition-colors", isDarkHero ? "text-white drop-shadow-sm" : "text-primary")} />
         </Link>
 
         <ul className="hidden items-center gap-8 lg:flex">
@@ -40,11 +79,27 @@ export function Navbar() {
                 <Link
                   to={l.to}
                   className={cn(
-                    "underline-link relative text-sm font-medium transition-colors",
-                    active ? "text-accent" : "text-primary/75 hover:text-primary",
+                    "underline-link relative inline-flex items-center gap-1.5 text-sm transition-colors font-medium",
+                    isDarkHero
+                      ? active
+                        ? "text-sky-300 font-extrabold"
+                        : "text-white/85 hover:text-white"
+                      : active
+                        ? "text-accent font-extrabold"
+                        : "text-slate-700 hover:text-primary",
                   )}
                 >
                   {l.label}
+                  {Boolean((l as { badge?: string }).badge) && (
+                    <span className={cn(
+                      "inline-flex items-center rounded-full px-2 py-0.5 text-[0.65rem] font-bold tracking-wider animate-pulse border",
+                      isDarkHero
+                        ? "bg-sky-400/20 text-sky-200 border-sky-400/40"
+                        : "bg-accent/15 text-accent border-accent/30"
+                    )}>
+                      {(l as { badge?: string }).badge}
+                    </span>
+                  )}
                   {active && (
                     <motion.span
                       layoutId="nav-active"
@@ -57,14 +112,35 @@ export function Navbar() {
           })}
         </ul>
 
-        <div className="flex items-center gap-3">
-          <BrandButton to="/login" size="sm" className="hidden sm:inline-flex" arrow={false}>
-            <LogIn className="size-4" /> Login
+        <div className="flex items-center gap-3 shrink-0">
+          <BrandButton
+            onClick={handleAuthAction}
+            variant={isDarkHero ? "accent" : "login"}
+            size="sm"
+            className="hidden sm:inline-flex shrink-0 whitespace-nowrap shadow-lg min-w-[105px] px-5 py-2 cursor-pointer"
+            arrow={false}
+          >
+            {isAuth ? (
+              <>
+                <LogOut className="size-4 text-red-300 shrink-0 transition-transform group-hover:scale-110" />
+                <span className="whitespace-nowrap">Logout</span>
+              </>
+            ) : (
+              <>
+                <LogIn className="size-4 text-sky-200 shrink-0 transition-transform group-hover:scale-110" />
+                <span className="whitespace-nowrap">Login</span>
+              </>
+            )}
           </BrandButton>
           <button
             onClick={() => setOpen((v) => !v)}
             aria-label="Toggle menu"
-            className="grid size-11 place-items-center rounded-full border border-border bg-white/70 text-primary backdrop-blur-md lg:hidden"
+            className={cn(
+              "grid size-11 place-items-center rounded-full border backdrop-blur-md lg:hidden transition-colors",
+              isDarkHero
+                ? "border-white/20 bg-white/10 text-white hover:bg-white/20"
+                : "border-border bg-white/70 text-primary hover:bg-white",
+            )}
           >
             {open ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
@@ -81,7 +157,7 @@ export function Navbar() {
             className="overflow-hidden lg:hidden"
           >
             <div className="shell pt-6 pb-8">
-              <div className="glass rounded-3xl p-3">
+              <div className={cn("rounded-3xl p-3 border shadow-2xl backdrop-blur-2xl", isDarkHero ? "bg-slate-900/95 border-white/15" : "glass")}>
                 {NAV_LINKS.map((l, i) => (
                   <motion.div
                     key={l.to}
@@ -92,19 +168,41 @@ export function Navbar() {
                     <Link
                       to={l.to}
                       onClick={() => setOpen(false)}
-                      className="block rounded-2xl px-5 py-3.5 text-base font-medium text-primary transition-colors hover:bg-white/70"
+                      className={cn(
+                        "block rounded-2xl px-5 py-3.5 text-base font-medium transition-colors",
+                        isDarkHero
+                          ? "text-white hover:bg-white/10"
+                          : "text-primary hover:bg-white/70"
+                      )}
                     >
                       {l.label}
                     </Link>
                   </motion.div>
                 ))}
-                <Link
-                  to="/login"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 block rounded-2xl px-5 py-3.5 text-base font-medium text-accent"
-                >
-                  Login
-                </Link>
+                <div className="mt-3 px-2">
+                  <BrandButton
+                    onClick={() => {
+                      setOpen(false);
+                      handleAuthAction();
+                    }}
+                    variant={isDarkHero ? "accent" : "login"}
+                    size="md"
+                    className="w-full justify-center cursor-pointer"
+                    arrow={false}
+                  >
+                    {isAuth ? (
+                      <>
+                        <LogOut className="size-4 text-red-300" />
+                        <span>Logout</span>
+                      </>
+                    ) : (
+                      <>
+                        <LogIn className="size-4 text-sky-200" />
+                        <span>Login</span>
+                      </>
+                    )}
+                  </BrandButton>
+                </div>
               </div>
             </div>
           </motion.div>

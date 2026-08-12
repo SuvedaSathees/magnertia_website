@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, CheckCircle2 } from "lucide-react";
+import { X, CheckCircle2, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { BrandButton } from "./BrandButton";
 import { PRODUCTS } from "@/data/site";
+import { saveInquiry, type InquiryRecord } from "@/lib/api-client";
+import { saveSubmissionLocally } from "@/lib/excel-client";
 
 const schema = z.object({
   fullName: z.string().trim().min(2, "Please enter your full name").max(100),
@@ -38,8 +40,9 @@ export function InquiryModal({
   const [isBusiness, setIsBusiness] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sent, setSent] = useState(false);
+  const [lastSubmittedRecord, setLastSubmittedRecord] = useState<InquiryRecord | null>(null);
 
-  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(e.currentTarget).entries());
     const parsed = schema.safeParse(data);
@@ -50,13 +53,40 @@ export function InquiryModal({
       toast.error("Please review the highlighted fields.");
       return;
     }
+
+    const record: InquiryRecord = {
+      type: "inquiry",
+      fullName: String(parsed.data.fullName || ""),
+      email: String(parsed.data.email || ""),
+      phone: String(parsed.data.phone || ""),
+      company: String(parsed.data.company || data.companyName || ""),
+      businessType: String(parsed.data.businessType || ""),
+      product: String(parsed.data.product || ""),
+      requirements: String(parsed.data.requirements || ""),
+      quantity: String(parsed.data.quantity || ""),
+      deployment: String(parsed.data.deployment || ""),
+      gst: String(parsed.data.gst || ""),
+      location: String(parsed.data.location || ""),
+      fleetSize: String(parsed.data.fleetSize || ""),
+      purpose: String(parsed.data.purpose || ""),
+    };
+
     setErrors({});
+    saveSubmissionLocally(record);
+    setLastSubmittedRecord(record);
+
+    try {
+      await saveInquiry(record);
+    } catch (err) {
+      console.error("Failed to save inquiry to MongoDB:", err);
+    }
+
     setSent(true);
-    toast.success("Inquiry received — our team will reach out within 24 hours.");
+    toast.success("Enquiry received — stored securely for our admin team.");
     setTimeout(() => {
       setSent(false);
       onClose();
-    }, 2200);
+    }, 2500);
   };
 
   return (
@@ -80,9 +110,9 @@ export function InquiryModal({
             {sent ? (
               <div className="flex flex-col items-center py-16 text-center">
                 <CheckCircle2 className="size-14 text-accent" />
-                <h3 className="mt-6 text-2xl">Inquiry submitted</h3>
+                <h3 className="mt-6 text-2xl">Enquiry submitted</h3>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Thank you — a Magnertia specialist will contact you shortly.
+                  Thank you — your specifications enquiry has been stored. A Magnertia specialist will contact you shortly.
                 </p>
               </div>
             ) : (
@@ -90,7 +120,7 @@ export function InquiryModal({
                 <div className="flex items-start justify-between gap-6">
                   <div>
                     <p className="text-xs font-semibold tracking-[0.22em] text-accent uppercase">
-                      Product Inquiry
+                      Product Enquiry
                     </p>
                     <h3 className="mt-3 text-3xl">Request full specifications</h3>
                     <p className="mt-2 text-sm text-muted-foreground">
@@ -111,7 +141,7 @@ export function InquiryModal({
                     <label className={labelCls} htmlFor="fullName">
                       Full Name
                     </label>
-                    <input id="fullName" name="fullName" className={field} placeholder="Jane Doe" />
+                    <input id="fullName" name="fullName" className={field} placeholder="Your Name" />
                     {errors.fullName && (
                       <p className="mt-1.5 text-xs text-destructive">{errors.fullName}</p>
                     )}
@@ -131,7 +161,7 @@ export function InquiryModal({
                       name="email"
                       type="email"
                       className={field}
-                      placeholder="you@company.com"
+                      placeholder="name@gmail.com"
                     />
                     {errors.email && (
                       <p className="mt-1.5 text-xs text-destructive">{errors.email}</p>
@@ -216,7 +246,7 @@ export function InquiryModal({
                       className="size-4.5 accent-[#2E8BFF]"
                     />
                     <span className="text-sm text-foreground">
-                      This is a business / enterprise inquiry
+                      This is a business / enterprise enquiry
                     </span>
                   </label>
 
@@ -264,7 +294,7 @@ export function InquiryModal({
 
                   <div className="sm:col-span-2">
                     <BrandButton type="submit" size="lg" className="w-full">
-                      Submit Inquiry
+                      Submit Enquiry
                     </BrandButton>
                   </div>
                 </form>

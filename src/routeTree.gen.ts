@@ -11,11 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as BusinessRouteImport } from './routes/business'
 import { Route as ContactRouteImport } from './routes/contact'
-import { Route as FrancisRouteImport } from './routes/francis'
+import { Route as FranchiseRouteImport } from './routes/franchise'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as OfferRouteImport } from './routes/offer'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as TermsRouteImport } from './routes/terms'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -27,19 +31,34 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BusinessRoute = BusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FrancisRoute = FrancisRouteImport.update({
-  id: '/francis',
-  path: '/francis',
+const FranchiseRoute = FranchiseRouteImport.update({
+  id: '/franchise',
+  path: '/franchise',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfferRoute = OfferRouteImport.update({
+  id: '/offer',
+  path: '/offer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -52,73 +71,106 @@ const ServicesRoute = ServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/business': typeof BusinessRoute
   '/contact': typeof ContactRoute
-  '/francis': typeof FrancisRoute
+  '/franchise': typeof FranchiseRoute
   '/login': typeof LoginRoute
+  '/offer': typeof OfferRoute
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
   '/services': typeof ServicesRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/business': typeof BusinessRoute
   '/contact': typeof ContactRoute
-  '/francis': typeof FrancisRoute
+  '/franchise': typeof FranchiseRoute
   '/login': typeof LoginRoute
+  '/offer': typeof OfferRoute
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
   '/services': typeof ServicesRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/business': typeof BusinessRoute
   '/contact': typeof ContactRoute
-  '/francis': typeof FrancisRoute
+  '/franchise': typeof FranchiseRoute
   '/login': typeof LoginRoute
+  '/offer': typeof OfferRoute
+  '/privacy': typeof PrivacyRoute
   '/products': typeof ProductsRoute
   '/services': typeof ServicesRoute
+  '/terms': typeof TermsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/business'
     | '/contact'
-    | '/francis'
+    | '/franchise'
     | '/login'
+    | '/offer'
+    | '/privacy'
     | '/products'
     | '/services'
+    | '/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/business'
     | '/contact'
-    | '/francis'
+    | '/franchise'
     | '/login'
+    | '/offer'
+    | '/privacy'
     | '/products'
     | '/services'
+    | '/terms'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/business'
     | '/contact'
-    | '/francis'
+    | '/franchise'
     | '/login'
+    | '/offer'
+    | '/privacy'
     | '/products'
     | '/services'
+    | '/terms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  BusinessRoute: typeof BusinessRoute
   ContactRoute: typeof ContactRoute
-  FrancisRoute: typeof FrancisRoute
+  FranchiseRoute: typeof FranchiseRoute
   LoginRoute: typeof LoginRoute
+  OfferRoute: typeof OfferRoute
+  PrivacyRoute: typeof PrivacyRoute
   ProductsRoute: typeof ProductsRoute
   ServicesRoute: typeof ServicesRoute
+  TermsRoute: typeof TermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -137,6 +189,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/business': {
+      id: '/business'
+      path: '/business'
+      fullPath: '/business'
+      preLoaderRoute: typeof BusinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -144,11 +203,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/francis': {
-      id: '/francis'
-      path: '/francis'
-      fullPath: '/francis'
-      preLoaderRoute: typeof FrancisRouteImport
+    '/franchise': {
+      id: '/franchise'
+      path: '/franchise'
+      fullPath: '/franchise'
+      preLoaderRoute: typeof FranchiseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -156,6 +215,20 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offer': {
+      id: '/offer'
+      path: '/offer'
+      fullPath: '/offer'
+      preLoaderRoute: typeof OfferRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -172,18 +245,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  BusinessRoute: BusinessRoute,
   ContactRoute: ContactRoute,
-  FrancisRoute: FrancisRoute,
+  FranchiseRoute: FranchiseRoute,
   LoginRoute: LoginRoute,
+  OfferRoute: OfferRoute,
+  PrivacyRoute: PrivacyRoute,
   ProductsRoute: ProductsRoute,
   ServicesRoute: ServicesRoute,
+  TermsRoute: TermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

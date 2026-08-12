@@ -132,11 +132,11 @@ Products
 
 Services
 
-Francis
+Franchise
 
 About
 
-Contact
+Contact us
 
 Login
 
@@ -470,7 +470,7 @@ Monitoring
 
 Beautiful vertical timeline.
 
-Francis Page
+Franchise Page
 
 Create a premium founder page.
 
@@ -508,7 +508,7 @@ Gallery
 
 LinkedIn Button
 
-Contact Founder
+Contact us Founder
 
 Use premium layout.
 
@@ -536,13 +536,13 @@ Monitoring
 
 Animated illustrations.
 
-Contact Page
+Contact us Page
 
 Split Layout
 
 Left
 
-Modern Contact Form
+Modern Contact us Form
 
 Full Name
 
@@ -812,10 +812,10 @@ This project was built with [Lovable](https://lovable.dev).
 
 ## Build with Lovable
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/5319efaa-f8f6-44ae-b0dd-6528275500de).
+Continue developing this project in the [Magnertia editor](https://lovable.dev/projects/5319efaa-f8f6-44ae-b0dd-6528275500de).
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Ship faster**: describe what you want to build and Magnertia handles the code.
+- **Stay in sync**: every change made in Magnertia is committed straight to this repository.
 - **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
 
 ## Development

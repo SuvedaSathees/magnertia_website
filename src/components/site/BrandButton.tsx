@@ -17,11 +17,13 @@ export const brandButton = cva(
           "border border-white/25 bg-white/10 text-white backdrop-blur-md hover:border-white/60 hover:bg-white/20",
         accent:
           "text-white [background:var(--gradient-accent)] hover:scale-[1.03] hover:shadow-[var(--shadow-glow)]",
+        login:
+          "text-white font-semibold bg-[#0D2F56] hover:bg-[#071E38] border border-[#0D2F56] shadow-md hover:scale-[1.03] active:scale-[0.98]",
       },
       size: {
-        sm: "px-5 py-2.5 text-sm",
-        md: "px-7 py-3.5 text-sm",
-        lg: "px-9 py-4 text-base",
+        sm: "px-5 py-2 text-sm min-w-[105px]",
+        md: "px-6 py-2.5 text-sm min-w-[125px]",
+        lg: "px-7 py-3 text-base min-w-[145px]",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },
@@ -51,9 +53,11 @@ export function BrandButton({
 }: Props) {
   const inner = (
     <>
-      <span className="relative z-10">{children}</span>
+      <span className="relative z-10 inline-flex items-center justify-center gap-2.5 flex-nowrap whitespace-nowrap">
+        {children}
+      </span>
       {arrow && (
-        <ArrowRight className="relative z-10 size-4 transition-transform duration-500 group-hover:translate-x-1.5" />
+        <ArrowRight className="relative z-10 size-4 shrink-0 transition-transform duration-500 group-hover:translate-x-1.5" />
       )}
       <span className="absolute inset-0 -translate-x-full bg-[var(--gradient-sheen)] transition-transform duration-700 group-hover:translate-x-full" />
     </>

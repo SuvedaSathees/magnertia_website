@@ -12,6 +12,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import faviconLogo from "@/assets/logo.png";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
@@ -84,14 +85,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Magnertia — The Future of Autonomous Charging" },
+      { title: "Magnertia — Making EV Charging Simple | Smarter Charging. Simpler Living." },
       {
         name: "description",
         content:
-          "Magnertia Private Limited builds autonomous EV charging and wireless power transfer technology for India and the world.",
+          "Magnertia creates smart EV charging solutions that make charging easier, faster, and more convenient for everyone.",
       },
-      { name: "author", content: "Magnertia Private Limited" },
-      { property: "og:site_name", content: "Magnertia Private Limited" },
+      { name: "author", content: "Magnertia" },
+      { property: "og:site_name", content: "Magnertia" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -101,9 +102,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@300;400;500;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg?v=100" },
+      { rel: "alternate icon", type: "image/png", href: faviconLogo },
+      { rel: "shortcut icon", href: "/favicon.svg?v=100" },
+      { rel: "apple-touch-icon", href: faviconLogo },
     ],
     scripts: [
       {
@@ -111,9 +115,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "Organization",
-          name: "Magnertia Private Limited",
-          slogan: "The Future of Autonomous Charging",
-          address: { "@type": "PostalAddress", addressLocality: "Bengaluru", addressCountry: "IN" },
+          name: "Magnertia",
+          url: "https://www.magnertia.in",
+          slogan: "Smarter Charging. Simpler Living.",
+          telephone: "7708100362",
+          email: "magnertia@gmail.com",
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: "585/18/2, Lakshminagar, Kottakadu, Pallipalayam",
+            addressLocality: "Namakkal",
+            postalCode: "638008",
+            addressCountry: "IN",
+          },
         }),
       },
     ],
@@ -128,6 +141,10 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=100" />
+        <link rel="alternate icon" type="image/png" href={faviconLogo} />
+        <link rel="shortcut icon" href="/favicon.svg?v=100" />
+        <link rel="apple-touch-icon" href={faviconLogo} />
         <HeadContent />
       </head>
       <body>
@@ -150,6 +167,8 @@ function SiteLayout() {
     }
   }, []);
 
+  const isLoginPage = pathname === "/login";
+
   return (
     <>
       {intro && <IntroScreen onDone={() => setIntro(false)} />}
@@ -168,7 +187,7 @@ function SiteLayout() {
           <Outlet />
         </motion.main>
       </AnimatePresence>
-      <Footer />
+      {!isLoginPage && <Footer />}
       <FloatingActions />
       <Toaster position="top-center" />
     </>

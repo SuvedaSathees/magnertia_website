@@ -1,6 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { MapPin, Phone, Mail, Globe } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Globe,
+  Car,
+  ShieldCheck,
+  Clock,
+  Cpu,
+  CheckCircle2,
+  User,
+  MessageSquare,
+} from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
@@ -9,21 +21,24 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Reveal, SectionHeading, Particles } from "@/components/site/motion-kit";
+import { Reveal, SectionHeading, Particles, TiltCard } from "@/components/site/motion-kit";
 import { BrandButton } from "@/components/site/BrandButton";
 import { COMPANY } from "@/data/site";
+import { LogoMark } from "@/components/site/LogoMark";
+import { saveContact, type InquiryRecord } from "@/lib/api-client";
+import { saveSubmissionLocally } from "@/lib/excel-client";
 
 export const Route = createFileRoute("/contact")({
-  component: ContactPage,
+  component: ContactUsPage,
   head: () => ({
     meta: [
-      { title: "Contact — Magnertia Private Limited" },
+      { title: "Contact Us — Magnertia Private Limited" },
       {
         name: "description",
         content:
           "Get in touch with Magnertia Private Limited for autonomous and wireless EV charging deployments, pilots and partnerships.",
       },
-      { property: "og:title", content: "Contact — Magnertia" },
+      { property: "og:title", content: "Contact Us — Magnertia" },
       { property: "og:description", content: "Talk to the Magnertia engineering and sales team." },
       { property: "og:url", content: "/contact" },
     ],
@@ -38,21 +53,41 @@ const schema = z.object({
   message: z.string().trim().min(10, "Tell us a little more").max(1000),
 });
 
-const field =
-  "w-full rounded-2xl border border-border bg-white/70 px-4 py-3.5 text-sm outline-none backdrop-blur-md transition-all placeholder:text-muted-foreground/70 focus:border-accent focus:shadow-[var(--shadow-glow)]";
-const labelCls = "mb-2 block text-xs font-semibold tracking-[0.14em] text-primary/70 uppercase";
+const labelCls = "mb-2 block text-xs font-semibold tracking-[0.14em] text-primary/80 uppercase font-display";
 
 const faqs = [
-  { q: "Which vehicles are supported?", a: "Two-wheelers, passenger EVs, commercial vans and heavy-duty trucks and buses — our platforms are vehicle agnostic." },
-  { q: "How safe is wireless charging?", a: "Every system runs continuous foreign object detection, live object detection and dual-redundant thermal monitoring, aligned to SAE J2954." },
-  { q: "What is the installation timeline?", a: "A typical site moves from assessment to live monitoring in four to eight weeks depending on civil work." },
-  { q: "Do you support OCPP and fleet APIs?", a: "Yes. P11, R30 and F120 platforms ship with OCPP 2.0.1 and a documented fleet scheduling API." },
+  {
+    icon: Car,
+    tag: "Charging Ecosystems",
+    q: "What is the difference between Private and Public Charging Solutions?",
+    a: "Private solutions provide dedicated, controlled charging for apartments, corporate offices, warehouses, and fleet depots with authentication and optimized energy usage. Public charging networks offer open, on-the-go access across highways, malls, hotels, hospitals, and city parking zones.",
+  },
+  {
+    icon: ShieldCheck,
+    tag: "Why Choose Magnertia",
+    q: "Why choose Magnertia for our charging infrastructure?",
+    a: "We believe technology should make life easier. Our solutions are easy to use, safe, reliable, smart, and future-ready with Foreign Object Detection, weatherproofing, and automated operation that removes the hassle of cables.",
+  },
+  {
+    icon: Clock,
+    tag: "Revenue Sharing",
+    q: "How does revenue sharing work for charging site owners?",
+    a: "Property owners in malls, hotels, and commercial spaces earn passive income from EV charging demand while Magnertia manages all operations, installations, and technology seamlessly.",
+  },
+  {
+    icon: Cpu,
+    tag: "Software & Subscriptions",
+    q: "What software features are included for businesses?",
+    a: "Our smart charging platform provides charging management dashboards, user authentication systems, energy monitoring, analytics, and mobile app access through monthly or annual SaaS subscriptions.",
+  },
 ];
 
-function ContactPage() {
+function ContactUsPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [sent, setSent] = useState(false);
+  const [, setLastSubmittedRecord] = useState<InquiryRecord | null>(null);
 
-  const submit = (e: React.FormEvent<HTMLFormElement>) => {
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const data = Object.fromEntries(new FormData(form).entries());
@@ -63,105 +98,265 @@ function ContactPage() {
       setErrors(errs);
       return;
     }
+
+    const record: InquiryRecord = {
+      type: "contact",
+      fullName: String(parsed.data.fullName || ""),
+      email: String(parsed.data.email || ""),
+      phone: String(parsed.data.phone || ""),
+      message: String(parsed.data.message || ""),
+    };
+
     setErrors({});
+    saveSubmissionLocally(record);
+    setLastSubmittedRecord(record);
+
+    try {
+      await saveContact(record);
+    } catch (err) {
+      console.error("Failed to save contact to MongoDB:", err);
+    }
+
     form.reset();
-    toast.success("Message sent — we'll be in touch within one business day.");
+    setSent(true);
+    toast.success("Message sent — our team will respond within one business day.");
   };
 
   return (
     <>
-      <section className="relative overflow-hidden pt-40 pb-16">
-        <div className="pointer-events-none absolute -top-32 left-1/2 size-[600px] -translate-x-1/2 rounded-full bg-accent/12 blur-[150px]" />
-        <Particles count={16} />
+      {/* Hero Header */}
+      <section className="relative overflow-hidden pt-40 pb-20 tech-grid-bg">
+        <div className="pointer-events-none absolute -top-32 left-1/2 size-[650px] -translate-x-1/2 rounded-full bg-accent/15 blur-[160px] energy-glow" />
+        <Particles count={24} />
         <div className="shell relative">
           <SectionHeading
-            eyebrow="Contact"
+            eyebrow="Contact Us"
             title="Let's build your charging future"
             description="Tell us about your site, fleet or partnership idea and our team will respond within one business day."
           />
         </div>
       </section>
 
-      <section className="pb-24">
-        <div className="shell grid gap-8 lg:grid-cols-[1.1fr_1fr]">
-          <Reveal direction="left">
-            <form onSubmit={submit} className="glass rounded-[28px] p-8 sm:p-10">
-              <div className="grid gap-5">
-                <div>
-                  <label className={labelCls} htmlFor="fullName">Full Name</label>
-                  <input id="fullName" name="fullName" className={field} placeholder="Jane Doe" />
-                  {errors.fullName && <p className="mt-1.5 text-xs text-destructive">{errors.fullName}</p>}
-                </div>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div>
-                    <label className={labelCls} htmlFor="email">Email</label>
-                    <input id="email" name="email" type="email" className={field} placeholder="you@company.com" />
-                    {errors.email && <p className="mt-1.5 text-xs text-destructive">{errors.email}</p>}
+      {/* Main Content: Form & Company Details */}
+      <section className="pb-24 tech-grid-bg">
+        <div className="shell grid gap-8 lg:grid-cols-12 items-stretch">
+          {/* Animated Movie-Like Moving Form Card */}
+          <Reveal direction="left" className="lg:col-span-7 flex flex-col">
+            <TiltCard intensity={8} floatAnimation={true} className="h-full flex flex-col">
+              <div className="surface-card relative overflow-hidden rounded-[36px] border border-border/80 bg-white/95 backdrop-blur-2xl shadow-2xl flex flex-col justify-between h-full hover:border-accent/40 transition-all duration-500">
+                {/* Top Luxury Gradient Accent Line */}
+                <div className="h-2 w-full bg-gradient-to-r from-navy via-accent to-navy-soft" />
+
+                <div className="p-8 sm:p-11 flex-1 flex flex-col justify-center">
+                  {/* Luxury Form Title */}
+                  <div className="border-b border-slate-100 pb-6 mb-7">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="h-1.5 w-6 rounded-full bg-accent" />
+                      <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-accent">Direct Contact</span>
+                    </div>
+                    <h3 className="font-display text-2xl sm:text-3xl font-extrabold text-primary tracking-tight">
+                      Send Us a Message
+                    </h3>
                   </div>
-                  <div>
-                    <label className={labelCls} htmlFor="phone">Phone</label>
-                    <input id="phone" name="phone" className={field} placeholder="+91 ..." />
-                    {errors.phone && <p className="mt-1.5 text-xs text-destructive">{errors.phone}</p>}
-                  </div>
+
+                  {sent ? (
+                    <div className="flex flex-col items-center py-12 text-center my-auto">
+                      <div className="size-16 rounded-full bg-accent/10 border border-accent/20 grid place-items-center text-accent mb-4">
+                        <CheckCircle2 className="size-8" />
+                      </div>
+                      <h3 className="font-display text-2xl font-bold text-primary">Message sent</h3>
+                      <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+                        Thank you for reaching out! Our team has received your message and will respond shortly.
+                      </p>
+                      <div className="mt-8">
+                        <button
+                          type="button"
+                          onClick={() => setSent(false)}
+                          className="inline-flex items-center gap-2 rounded-full border border-border bg-slate-50 px-6 py-3 text-sm font-semibold text-primary transition-all hover:bg-slate-100 hover:border-accent/40 cursor-pointer shadow-sm"
+                        >
+                          Send Another Message
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <form onSubmit={submit} className="space-y-6">
+                      {/* Full Name */}
+                      <div>
+                        <label className={labelCls} htmlFor="fullName">Full Name</label>
+                        <div className="relative group">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4.5 text-slate-400 group-focus-within:text-accent transition-colors">
+                            <User className="size-4.5" />
+                          </div>
+                          <input
+                            id="fullName"
+                            name="fullName"
+                            className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 pl-12 pr-4 py-4 text-sm font-display text-primary outline-none transition-all placeholder:text-slate-400 focus:border-accent focus:bg-white focus:ring-4 focus:ring-accent/10 focus:shadow-[var(--shadow-glow)]"
+                            placeholder="Your Name"
+                          />
+                        </div>
+                        {errors.fullName && <p className="mt-1.5 text-xs text-destructive font-medium">{errors.fullName}</p>}
+                      </div>
+
+                      {/* Email & Phone */}
+                      <div className="grid gap-6 sm:grid-cols-2">
+                        <div>
+                          <label className={labelCls} htmlFor="email">Email</label>
+                          <div className="relative group">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4.5 text-slate-400 group-focus-within:text-accent transition-colors">
+                              <Mail className="size-4.5" />
+                            </div>
+                            <input
+                              id="email"
+                              name="email"
+                              type="email"
+                              className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 pl-12 pr-4 py-4 text-sm font-display text-primary outline-none transition-all placeholder:text-slate-400 focus:border-accent focus:bg-white focus:ring-4 focus:ring-accent/10 focus:shadow-[var(--shadow-glow)]"
+                              placeholder="name@gmail.com"
+                            />
+                          </div>
+                          {errors.email && <p className="mt-1.5 text-xs text-destructive font-medium">{errors.email}</p>}
+                        </div>
+
+                        <div>
+                          <label className={labelCls} htmlFor="phone">Phone</label>
+                          <div className="relative group">
+                            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4.5 text-slate-400 group-focus-within:text-accent transition-colors">
+                              <Phone className="size-4.5" />
+                            </div>
+                            <input
+                              id="phone"
+                              name="phone"
+                              className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 pl-12 pr-4 py-4 text-sm font-display text-primary outline-none transition-all placeholder:text-slate-400 focus:border-accent focus:bg-white focus:ring-4 focus:ring-accent/10 focus:shadow-[var(--shadow-glow)]"
+                              placeholder="+91 ..."
+                            />
+                          </div>
+                          {errors.phone && <p className="mt-1.5 text-xs text-destructive font-medium">{errors.phone}</p>}
+                        </div>
+                      </div>
+
+                      {/* Message */}
+                      <div>
+                        <label className={labelCls} htmlFor="message">Message</label>
+                        <div className="relative group">
+                          <div className="pointer-events-none absolute top-4 left-0 flex items-center pl-4.5 text-slate-400 group-focus-within:text-accent transition-colors">
+                            <MessageSquare className="size-4.5" />
+                          </div>
+                          <textarea
+                            id="message"
+                            name="message"
+                            rows={4}
+                            className="w-full rounded-2xl border border-slate-200/90 bg-slate-50/70 pl-12 pr-4 py-4 text-sm font-display text-primary outline-none transition-all placeholder:text-slate-400 focus:border-accent focus:bg-white focus:ring-4 focus:ring-accent/10 focus:shadow-[var(--shadow-glow)]"
+                            placeholder="How can we help?"
+                          />
+                        </div>
+                        {errors.message && <p className="mt-1.5 text-xs text-destructive font-medium">{errors.message}</p>}
+                      </div>
+
+                      {/* Submit Button */}
+                      <div className="pt-2">
+                        <BrandButton type="submit" size="lg" className="w-full justify-center shadow-xl py-4 text-base hover:scale-[1.01] transition-transform">
+                          Send Message
+                        </BrandButton>
+                      </div>
+                    </form>
+                  )}
                 </div>
-                <div>
-                  <label className={labelCls} htmlFor="message">Message</label>
-                  <textarea id="message" name="message" rows={5} className={field} placeholder="How can we help?" />
-                  {errors.message && <p className="mt-1.5 text-xs text-destructive">{errors.message}</p>}
-                </div>
-                <BrandButton type="submit" size="lg" className="mt-2 w-full">
-                  Send Message
-                </BrandButton>
               </div>
-            </form>
+            </TiltCard>
           </Reveal>
 
-          <Reveal direction="right">
-            <div className="flex h-full flex-col gap-6">
-              <div className="surface-card p-8">
-                <h3 className="text-xl">Company Information</h3>
-                <ul className="mt-6 space-y-5 text-sm">
-                  {[
-                    { icon: Globe, label: "Website", value: COMPANY.website },
-                    { icon: Phone, label: "Phone", value: COMPANY.phone },
-                    { icon: Mail, label: "Email", value: COMPANY.email },
-                    { icon: MapPin, label: "Location", value: COMPANY.location },
-                  ].map((c) => (
-                    <li key={c.label} className="flex gap-4">
-                      <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent">
-                        <c.icon className="size-4.5" />
-                      </div>
-                      <div>
-                        <p className="text-xs tracking-[0.14em] text-muted-foreground uppercase">{c.label}</p>
-                        <p className="mt-0.5 font-medium text-primary">{c.value}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="surface-card relative grid min-h-56 flex-1 place-items-center overflow-hidden [background:var(--gradient-primary)]">
-                <Particles count={12} />
-                <div className="relative text-center text-white/80">
-                  <MapPin className="mx-auto size-8 text-accent" />
-                  <p className="mt-3 text-xs tracking-[0.22em] uppercase">Map · {COMPANY.location}</p>
+          {/* Animated Movie-Like Moving Company Details Card */}
+          <Reveal direction="right" className="lg:col-span-5 flex flex-col">
+            <TiltCard intensity={8} floatAnimation={true} className="h-full flex flex-col">
+              <div className="surface-card relative overflow-hidden rounded-[36px] border border-white/25 [background:var(--gradient-primary)] text-white p-8 sm:p-11 shadow-2xl flex flex-col justify-between h-full hover:border-accent/60 transition-all duration-500">
+                {/* Subtle Ambient Particle & Glow */}
+                <div className="pointer-events-none absolute -top-24 -right-24 size-[340px] rounded-full bg-accent/25 blur-[120px]" />
+                <Particles count={16} />
+
+                <div className="relative z-10">
+                  {/* Brand Header */}
+                  <div className="flex items-center gap-4 border-b border-white/15 pb-7">
+                    <LogoMark className="h-16 w-16 rounded-2xl bg-white/10 p-3 shadow-lg backdrop-blur-md border border-white/20 hover:scale-105 transition-transform" />
+                    <div>
+                      <h3 className="font-display text-2xl font-bold text-white tracking-tight">{COMPANY.name}</h3>
+                      <p className="text-xs font-semibold text-accent uppercase tracking-widest mt-0.5">{COMPANY.tagline}</p>
+                    </div>
+                  </div>
+
+                  {/* Contact List */}
+                  <ul className="mt-8 space-y-4">
+                    {[
+                      { icon: MapPin, label: "Address", value: `${COMPANY.addressLine1} ${COMPANY.addressLine2}`, href: null },
+                      { icon: Phone, label: "Phone", value: `Ph: ${COMPANY.phone}`, href: `tel:${COMPANY.phone}` },
+                      { icon: Mail, label: "Email", value: `Mail: ${COMPANY.email}`, href: `mailto:${COMPANY.email}` },
+                      { icon: Globe, label: "Website", value: COMPANY.website, href: `https://${COMPANY.website}` },
+                    ].map((c) => (
+                      <li
+                        key={c.label}
+                        className="group rounded-2xl border border-white/10 bg-white/10 backdrop-blur-md p-4 transition-all duration-300 hover:bg-white/20 hover:border-accent/50 hover:shadow-lg hover:-translate-y-0.5"
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-accent text-white shadow-md transition-transform duration-300 group-hover:scale-110">
+                            <c.icon className="size-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[11px] font-bold tracking-[0.14em] text-white/70 uppercase">{c.label}</p>
+                            {c.href ? (
+                              <a
+                                href={c.href}
+                                target={c.label === "Website" ? "_blank" : undefined}
+                                rel={c.label === "Website" ? "noreferrer" : undefined}
+                                className="mt-0.5 block text-sm font-semibold text-white transition-colors group-hover:text-accent truncate"
+                              >
+                                {c.value}
+                              </a>
+                            ) : (
+                              <p className="mt-0.5 text-sm font-semibold text-white/95 leading-relaxed">{c.value}</p>
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-            </div>
+            </TiltCard>
           </Reveal>
         </div>
       </section>
 
-      <section className="pb-28">
-        <div className="shell max-w-3xl">
-          <SectionHeading eyebrow="FAQ" title="Questions, answered" />
+      {/* FAQ Section */}
+      <section className="relative overflow-hidden pb-[60px]">
+        <div className="pointer-events-none absolute -bottom-32 left-1/2 size-[500px] -translate-x-1/2 rounded-full bg-accent/10 blur-[140px]" />
+        <div className="shell relative max-w-4xl">
+          <SectionHeading
+            eyebrow="FAQ"
+            title="Frequently Asked Questions"
+            description="Have questions about autonomous charging, vehicle compatibility, or deployment timelines? Find answers below."
+          />
           <Reveal delay={0.1}>
-            <Accordion type="single" collapsible className="surface-card mt-12 px-6 py-2">
+            <Accordion type="single" collapsible className="mt-12 flex flex-col gap-4">
               {faqs.map((f, i) => (
-                <AccordionItem key={f.q} value={`item-${i}`}>
-                  <AccordionTrigger className="text-left font-display text-base font-semibold text-primary">
-                    {f.q}
+                <AccordionItem
+                  key={f.q}
+                  value={`item-${i}`}
+                  className="surface-card hover-lift group overflow-hidden rounded-2xl border border-border/80 bg-white/70 px-6 py-1 backdrop-blur-xl transition-all duration-300 data-[state=open]:border-primary/40 data-[state=open]:bg-white/95 data-[state=open]:shadow-md"
+                >
+                  <AccordionTrigger className="py-5 text-left transition-all hover:no-underline [&[data-state=open]>svg]:rotate-180 [&[data-state=open]>svg]:bg-primary [&[data-state=open]>svg]:text-white [&>svg]:size-8 [&>svg]:rounded-full [&>svg]:bg-primary/10 [&>svg]:p-2 [&>svg]:text-primary [&>svg]:transition-all [&>svg]:duration-300">
+                    <div className="flex items-center gap-4">
+                      <div className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-105">
+                        <f.icon className="size-5" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold tracking-[0.18em] text-accent uppercase">
+                          {f.tag}
+                        </span>
+                        <h4 className="mt-0.5 font-display text-base font-semibold text-primary sm:text-lg">
+                          {f.q}
+                        </h4>
+                      </div>
+                    </div>
                   </AccordionTrigger>
-                  <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                  <AccordionContent className="mt-1 border-t border-border/40 pt-4 pb-5 pl-[3.75rem] pr-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
                     {f.a}
                   </AccordionContent>
                 </AccordionItem>

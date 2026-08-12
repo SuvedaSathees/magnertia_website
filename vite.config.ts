@@ -12,4 +12,17 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      proxy: {
+        // Proxy all /api/* requests to the Express backend in development.
+        // This avoids CORS issues when running vite dev + node server concurrently.
+        "/api": {
+          target: "http://localhost:4000",
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
+  },
 });

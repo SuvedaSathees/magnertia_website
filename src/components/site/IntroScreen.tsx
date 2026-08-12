@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useState } from "react";
 import { LogoMark, MAGNERTIA_PATH_A, MAGNERTIA_PATH_B } from "./LogoMark";
 import { COMPANY } from "@/data/site";
+import logoImg from "@/assets/logo.png";
 
 export function IntroScreen({ onDone }: { onDone: () => void }) {
   const [show, setShow] = useState(true);
@@ -55,54 +56,18 @@ export function IntroScreen({ onDone }: { onDone: () => void }) {
               );
             })}
 
-            {/* drawn logo */}
+            {/* logo display */}
             <motion.div
-              className="relative"
-              initial={{ rotateY: 0 }}
-              animate={{ rotateY: [0, 0, 360] }}
-              transition={{ delay: 2.4, duration: 2, times: [0, 0.1, 1], ease: [0.16, 1, 0.3, 1] }}
-              style={{ perspective: 900 }}
+              className="relative flex items-center justify-center"
+              initial={{ opacity: 0, scale: 0.7, rotate: -10 }}
+              animate={{ opacity: 1, scale: 1, rotate: 0 }}
+              transition={{ delay: 0.4, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
             >
-              <svg viewBox="0 0 210 210" className="size-40" fill="none" aria-hidden>
-                <defs>
-                  <linearGradient id="introGloss" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor="#1E4D8F" />
-                    <stop offset="50%" stopColor="#0D2F56" />
-                    <stop offset="100%" stopColor="#2E8BFF" />
-                  </linearGradient>
-                </defs>
-                <g
-                  stroke="url(#introGloss)"
-                  strokeWidth={13}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {[MAGNERTIA_PATH_A, MAGNERTIA_PATH_B].map((d, i) => (
-                    <motion.path
-                      key={i}
-                      d={d}
-                      initial={{ pathLength: 0 }}
-                      animate={{ pathLength: 1 }}
-                      transition={{ delay: 0.25 + i * 0.55, duration: 1.3, ease: "easeInOut" }}
-                    />
-                  ))}
-                </g>
-                {[
-                  { cx: 164, cy: 190, r: 8 },
-                  { cx: 188, cy: 199, r: 7.5 },
-                ].map((c, i) => (
-                  <motion.circle
-                    key={i}
-                    {...c}
-                    fill="url(#introGloss)"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 2 + i * 0.12, type: "spring", stiffness: 300 }}
-                    style={{ transformOrigin: `${c.cx}px ${c.cy}px` }}
-                  />
-                ))}
-              </svg>
-              <LogoMark className="hidden" />
+              <img
+                src={logoImg}
+                alt="Magnertia Logo"
+                className="size-44 rounded-full object-cover shadow-2xl drop-shadow-2xl sm:size-52"
+              />
             </motion.div>
 
             <motion.h1
